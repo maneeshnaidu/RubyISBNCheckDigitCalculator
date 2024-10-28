@@ -1,33 +1,41 @@
-# Define a method to calculate the ISBN-13 check digit
-# @param isbn [String] A 12-digit ISBN-13 code as a string
-# @return [Integer] The check digit (0–9) for the full 13-digit ISBN-13
-# @raise [ArgumentError] If the input is not a 12-digit string
+# ISBN-13 Check Digit Calculator
+
+# Constants
+PROMPT_MESSAGE = "Enter the first 12 digits of an ISBN-13 code: "
+ERROR_MESSAGE = "Error: ISBN must be a 12-digit numeric string. Please try again."
+
+# Calculates the check digit for a 12-digit ISBN-13 code
 def calculate_isbn13_check_digit(isbn)
-    # Ensure the input is a 12-digit string
-    unless isbn.is_a?(String) && isbn.match?(/^\d{12}$/)
-      raise ArgumentError, "ISBN must be a 12-digit numeric string"
-    end
-  
-    # Calculate the weighted sum of the first 12 digits
-    sum = isbn.chars.each_with_index.sum do |digit, index|
-      digit.to_i * (index.even? ? 1 : 3)
-    end
-  
-    # Calculate check digit as the remainder needed to make the sum a multiple of 10
-    (10 - (sum % 10)) % 10
+  unless isbn.is_a?(String) && isbn.match?(/^\d{12}$/)
+    raise ArgumentError, ERROR_MESSAGE
   end
-  
-  # Main program that prompts user input
-  begin
-    # Prompt the user to enter the first 12 digits of an ISBN-13
-    print "Enter the first 12 digits of an ISBN-13 code: "
+
+  sum = isbn.chars.each_with_index.sum { |digit, index| digit.to_i * (index.even? ? 1 : 3) }
+  if((10 - (sum % 10)) == 10)
+        0
+  else
+    (10 - (sum % 10))
+  end
+end
+
+# Prompts user for a 12-digit ISBN code and returns the valid input
+def prompt_isbn_input
+  loop do
+    print PROMPT_MESSAGE
     isbn = gets.chomp
-  
-    # Calculate and display the full ISBN-13 with the check digit
-    check_digit = calculate_isbn13_check_digit(isbn)
-    full_isbn = isbn + check_digit.to_s
-    puts "The full ISBN-13 is: #{full_isbn}"
-  rescue ArgumentError => e
-    puts "Error: #{e.message}"
+    return isbn if isbn.match?(/^\d{12}$/)
+
+    puts ERROR_MESSAGE
   end
-  
+end
+
+# Main program logic
+def main
+  isbn = prompt_isbn_input
+  check_digit = calculate_isbn13_check_digit(isbn)
+  full_isbn = isbn + check_digit.to_s
+  puts "The full ISBN-13 is: #{full_isbn}"
+end
+
+# Only run `main` if the file is executed directly
+main if __FILE__ == $0
